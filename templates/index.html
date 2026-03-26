@@ -1,0 +1,288 @@
+<!DOCTYPE html>
+<html>
+<head>
+
+<title>Multimodal Education Creator</title>
+
+<style>
+
+body{
+    font-family: Arial, sans-serif;
+    background: linear-gradient(120deg,#202020fb);
+    margin:0;
+    padding:0;
+}
+
+.container{
+    width:900px;
+    margin:auto;
+    margin-top:40px;
+}
+
+h1{
+    text-align:center;
+    color:white;
+}
+
+.search-box{
+    text-align:center;
+    margin:30px 0;
+}
+
+input[type=text]{
+    width:60%;
+    padding:12px;
+    border-radius:25px;
+    border:none;
+    font-size:16px;
+}
+
+button{
+    padding:12px 25px;
+    border:none;
+    border-radius:25px;
+    background:#ff9800;
+    color:white;
+    font-size:16px;
+    cursor:pointer;
+}
+
+button:hover{
+    background:#e68900;
+}
+
+.card{
+    background:rgb(231, 226, 226);
+    padding:25px;
+    border-radius:10px;
+    margin-bottom:20px;
+    box-shadow:0 4px 10px rgba(0,0,0,0.2);
+}
+
+.explanation{
+    line-height:1.8;
+    white-space:pre-line;
+    font-size:16px;
+    background:#f9f9ff;
+    padding:20px;
+    border-left:6px solid #ff9800;
+    border-radius:8px;
+}
+
+/* FLASHCARDS */
+.flashcards{
+    display:grid;
+    grid-template-columns:repeat(auto-fit,minmax(220px,1fr));
+    gap:25px;
+    margin-top:15px;
+}
+
+.flashcard{
+    perspective:1000px;
+}
+
+.flashcard-inner{
+    position:relative;
+    width:100%;
+    height:170px;
+    transition:transform 0.7s;
+    transform-style:preserve-3d;
+}
+
+.flashcard:hover .flashcard-inner{
+    transform:rotateY(180deg);
+}
+
+.flashcard-front,
+.flashcard-back{
+    position:absolute;
+    width:100%;
+    height:100%;
+    border-radius:12px;
+    display:flex;
+    align-items:center;
+    justify-content:center;
+    padding:15px;
+    text-align:center;
+    backface-visibility:hidden;
+    font-size:16px;
+}
+
+.flashcard-front{
+    background:linear-gradient(135deg,#2575fc,#6a11cb);
+    color:white;
+    font-weight:bold;
+}
+
+.flashcard-back{
+    background:white;
+    color:#333;
+    transform:rotateY(180deg);
+    border:2px solid #2575fc;
+}
+
+/* IMAGE */
+.image-section{
+    text-align:center;
+}
+
+.image-section img{
+    width:500px;
+    border-radius:10px;
+    margin-top:10px;
+}
+
+/* LOADING */
+.loader{
+    border:6px solid #f3f3f3;
+    border-top:6px solid #ff9800;
+    border-radius:50%;
+    width:40px;
+    height:40px;
+    animation:spin 1s linear infinite;
+    margin:auto;
+}
+
+@keyframes spin{
+    0%{transform:rotate(0deg);}
+    100%{transform:rotate(360deg);}
+}
+
+.footer{
+    text-align:center;
+    color:white;
+    margin-top:20px;
+}
+
+.navbar{
+    display:flex;
+    justify-content:space-between;
+    align-items:center;
+    background:#1f1f1f;
+    padding:15px 30px;
+}
+
+.navbar h2{
+    color:white;
+    margin:0;
+}
+
+.logout-btn{
+    background:#ff4d4d;
+    color:white;
+    padding:8px 16px;
+    border-radius:8px;
+    text-decoration:none;
+    font-weight:bold;
+}
+
+.logout-btn:hover{
+    background:#e60000;
+}
+
+/* NEW UPLOAD SECTION */
+.upload-box{
+    text-align:center;
+    margin:20px 0;
+}
+
+.upload-box input{
+    margin:10px;
+}
+
+</style>
+
+<script>
+function showLoader(){
+    document.getElementById("loader").style.display="block";
+}
+</script>
+
+</head>
+
+<body>
+
+<div class="navbar">
+<h2>Multimodal Education Creator</h2>
+<a href="/logout" class="logout-btn">Logout</a>
+</div>
+
+<div class="container">
+
+<!-- SEARCH -->
+<div class="search-box">
+<form method="POST" onsubmit="showLoader()">
+<input type="text" name="topic" placeholder="Enter topic..... " required>
+<button type="submit">Generate</button>
+</form>
+</div>
+
+<!-- NEW PDF UPLOAD SECTION -->
+<div class="card upload-box">
+<h3>📄 Upload PDF for Knowledge Base</h3>
+
+<form action="/upload" method="POST" enctype="multipart/form-data">
+    
+    <input type="file" name="file" accept=".pdf" required>
+    
+    <br>
+    
+    <button type="submit">Upload PDF</button>
+
+</form>
+
+<p style="color:gray;">Upload PDF to improve AI answers</p>
+
+</div>
+
+<!-- LOADER -->
+<div id="loader" style="display:none">
+<div class="loader"></div>
+</div>
+
+<!-- EXPLANATION -->
+{% if explanation %}
+<div class="card">
+<h2>Explanation</h2>
+<div class="explanation">
+{{ explanation }}
+</div>
+</div>
+{% endif %}
+
+<!-- FLASHCARDS -->
+{% if flashcards %}
+<div class="card">
+<h2>Flashcards</h2>
+<div class="flashcards">
+{% for card in flashcards %}
+<div class="flashcard">
+<div class="flashcard-inner">
+<div class="flashcard-front">
+{{ card.front }}
+</div>
+<div class="flashcard-back">
+{{ card.back }}
+</div>
+</div>
+</div>
+{% endfor %}
+</div>
+</div>
+{% endif %}
+
+<!-- IMAGE -->
+{% if image_url %}
+<div class="card image-section">
+<h2>Generated Visual</h2>
+<img src="{{ image_url }}" alt="Generated diagram">
+</div>
+{% endif %}
+
+<div class="footer">
+AI Powered Educational Content Generator
+</div>
+
+</div>
+</body>
+</html>
